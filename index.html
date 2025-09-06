@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" class="loading-spinner hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Login/Register Page -->
+    <div id="auth-page" class="auth-page">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1>📚 Library Management System</h1>
+                <p>Manage your library efficiently</p>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form">
+                <h2>Sign In</h2>
+                <form id="login-form-element">
+                    <div class="form-group">
+                        <label class="form-label" for="login-email">Email</label>
+                        <input type="email" id="login-email" class="form-control" required>
+                        <span class="error-message" id="login-email-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="login-password">Password</label>
+                        <input type="password" id="login-password" class="form-control" required>
+                        <span class="error-message" id="login-password-error"></span>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--full-width">Sign In</button>
+                </form>
+                <p class="auth-switch">
+                    Don't have an account? <a href="#" id="show-register">Register here</a>
+                </p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="auth-form hidden">
+                <h2>Create Account</h2>
+                <form id="register-form-element">
+                    <div class="form-group">
+                        <label class="form-label" for="register-username">Username</label>
+                        <input type="text" id="register-username" class="form-control" required>
+                        <span class="error-message" id="register-username-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="register-email">Email</label>
+                        <input type="email" id="register-email" class="form-control" required>
+                        <span class="error-message" id="register-email-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="register-password">Password</label>
+                        <input type="password" id="register-password" class="form-control" required>
+                        <span class="error-message" id="register-password-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="register-role">Role</label>
+                        <select id="register-role" class="form-control">
+                            <option value="MEMBER">Member</option>
+                            <option value="ADMIN">Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--full-width">Create Account</button>
+                </form>
+                <p class="auth-switch">
+                    Already have an account? <a href="#" id="show-login">Sign in here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="main-app" class="main-app hidden">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1 class="app-title">📚 Library System</h1>
+                </div>
+                <nav class="header-nav">
+                    <button class="nav-btn active" data-view="books">Books</button>
+                    <button class="nav-btn" data-view="dashboard">My Dashboard</button>
+                    <button class="nav-btn admin-only hidden" data-view="admin">Admin</button>
+                </nav>
+                <div class="header-right">
+                    <div class="user-menu">
+                        <button class="user-menu-btn">
+                            <span id="user-name">User</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div class="user-menu-dropdown hidden">
+                            <button id="logout-btn">Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Books View -->
+            <div id="books-view" class="view active">
+                <div class="view-header">
+                    <h2>Library Books</h2>
+                    <div class="search-filters">
+                        <input type="text" id="search-input" class="form-control search-input" placeholder="Search books by title or author...">
+                        <select id="availability-filter" class="form-control">
+                            <option value="">All Books</option>
+                            <option value="available">Available</option>
+                            <option value="borrowed">Borrowed</option>
+                        </select>
+                        <button id="clear-filters" class="btn btn--outline">Clear Filters</button>
+                    </div>
+                </div>
+                
+                <div class="books-grid" id="books-grid">
+                    <!-- Books will be populated here -->
+                </div>
+
+                <div class="empty-state hidden" id="books-empty-state">
+                    <p>No books found matching your criteria.</p>
+                </div>
+            </div>
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view">
+                <div class="view-header">
+                    <h2>My Dashboard</h2>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card__body">
+                            <h3>Currently Borrowed</h3>
+                            <div id="borrowed-books-list">
+                                <!-- Borrowed books will be populated here -->
+                            </div>
+                            <div class="empty-state hidden" id="borrowed-empty-state">
+                                <p>No books currently borrowed.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card__body">
+                            <h3>Borrowing History</h3>
+                            <div id="borrow-history-list">
+                                <!-- History will be populated here -->
+                            </div>
+                            <div class="empty-state hidden" id="history-empty-state">
+                                <p>No borrowing history found.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin View -->
+            <div id="admin-view" class="view admin-only">
+                <div class="view-header">
+                    <h2>Admin Dashboard</h2>
+                </div>
+
+                <div class="admin-tabs">
+                    <button class="tab-btn active" data-tab="stats">Statistics</button>
+                    <button class="tab-btn" data-tab="books-mgmt">Book Management</button>
+                    <button class="tab-btn" data-tab="users-mgmt">User Management</button>
+                </div>
+
+                <!-- Statistics Tab -->
+                <div id="stats-tab" class="tab-content active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Total Books</h3>
+                            <p class="stat-number" id="total-books">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Available Books</h3>
+                            <p class="stat-number" id="available-books">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Borrowed Books</h3>
+                            <p class="stat-number" id="borrowed-books-count">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Users</h3>
+                            <p class="stat-number" id="total-users">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Book Management Tab -->
+                <div id="books-mgmt-tab" class="tab-content">
+                    <div class="mgmt-header">
+                        <button class="btn btn--primary" id="add-book-btn">Add New Book</button>
+                    </div>
+                    <div id="admin-books-list">
+                        <!-- Admin book list will be populated here -->
+                    </div>
+                </div>
+
+                <!-- User Management Tab -->
+                <div id="users-mgmt-tab" class="tab-content">
+                    <div id="admin-users-list">
+                        <!-- User list will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Book Details Modal -->
+    <div id="book-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-book-title">Book Title</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Author:</strong> <span id="modal-book-author"></span></p>
+                <p><strong>ISBN:</strong> <span id="modal-book-isbn"></span></p>
+                <p><strong>Status:</strong> <span id="modal-book-status"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--outline modal-close">Close</button>
+                <button id="modal-book-action" class="btn btn--primary">Borrow</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Book Modal -->
+    <div id="book-form-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="book-form-title">Add New Book</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="book-form">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="book-title-input">Title</label>
+                        <input type="text" id="book-title-input" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="book-author-input">Author</label>
+                        <input type="text" id="book-author-input" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="book-isbn-input">ISBN</label>
+                        <input type="text" id="book-isbn-input" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="book-availability-input">Available</label>
+                        <select id="book-availability-input" class="form-control">
+                            <option value="true">Available</option>
+                            <option value="false">Not Available</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn--outline modal-close">Cancel</button>
+                    <button type="submit" class="btn btn--primary">Save Book</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirm Dialog -->
+    <div id="confirm-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Action</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">Are you sure?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--outline" id="confirm-cancel">Cancel</button>
+                <button class="btn btn--primary" id="confirm-ok">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
