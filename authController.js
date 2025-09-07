@@ -86,6 +86,15 @@ const register = async (req, res) => {
 
   } catch (error) {
     console.error('Registration error:', error);
+    if (error.code === 'P2002') {
+      return res.status(409).json({
+        success: false,
+        error: {
+          message: 'User with this email or username already exists',
+          code: 'USER_EXISTS'
+        }
+      });
+    }
     res.status(500).json({
       success: false,
       error: {
@@ -161,6 +170,15 @@ const login = async (req, res) => {
 
   } catch (error) {
     console.error('Login error:', error);
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          message: 'Invalid JWT token',
+          code: 'INVALID_TOKEN'
+        }
+      });
+    }
     res.status(500).json({
       success: false,
       error: {

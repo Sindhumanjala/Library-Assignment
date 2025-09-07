@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum BorrowStatus {
+  BORROWED
+  RETURNED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      Role     @default(MEMBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  borrowRecords BorrowRecord[]
+
+  @@map("users")
+}
+
+model Book {
+  id                 String   @id @default(cuid())
+  title              String
+  author             String
+  isbn               String   @unique
+  availabilityStatus Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Relations
+  borrowRecords BorrowRecord[]
+
+  @@map("books")
+}
+
+model BorrowRecord {
+  id         String       @id @default(cuid())
+  userId     String
+  bookId     String
+  borrowDate DateTime     @default(now())
+  returnDate DateTime?
+  status     BorrowStatus @default(BORROWED)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@unique([userId, bookId, status])
+  @@map("borrow_records")
+}

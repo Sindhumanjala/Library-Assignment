@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./src/utils/swagger');
+const rateLimit = require('express-rate-limit');
 
 // Import routes
 const authRoutes = require('./src/routes/auth');
@@ -12,6 +13,13 @@ const adminRoutes = require('./src/routes/admin');
 
 // Import middleware
 const errorHandler = require('./src/middleware/errorHandler');
+
+// Rate limiting middleware
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+});
 
 // Load environment variables
 dotenv.config();
@@ -23,6 +31,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Apply rate limiting to all routes
+app.use(limiter);
 
 // API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

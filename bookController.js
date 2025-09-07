@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const { bookValidation, borrowValidation } = require('../utils/validation');
+const { checkBookExists, checkBookAvailability, updateBookAvailability } = require('../utils/bookUtils');
 
 const prisma = new PrismaClient();
 
@@ -260,15 +261,13 @@ const getBookById = async (req, res) => {
  */
 const borrowBook = async (req, res) => {
   try {
+
     const { id: bookId } = req.params;
     const userId = req.user.userId;
 
     // Check if book exists and is available
-    const book = await prisma.book.findUnique({
-      where: { id: bookId }
-    });
-
-    if (!book) {
+    const exists = await checkBookExists(bookId);
+    if (!exists) {
       return res.status(404).json({
         success: false,
         error: {
@@ -278,7 +277,8 @@ const borrowBook = async (req, res) => {
       });
     }
 
-    if (!book.availabilityStatus) {
+    const isAvailable = await checkBookAvailability(bookId);
+    if (!isAvailable) {
       return res.status(409).json({
         success: false,
         error: {
@@ -307,6 +307,7 @@ const borrowBook = async (req, res) => {
       });
     }
 
+
     // Create borrow record and update book availability
     const result = await prisma.$transaction([
       prisma.borrowRecord.create({
@@ -316,10 +317,7 @@ const borrowBook = async (req, res) => {
           status: 'BORROWED'
         }
       }),
-      prisma.book.update({
-        where: { id: bookId },
-        data: { availabilityStatus: false }
-      })
+      updateBookAvailability(bookId, false)
     ]);
 
     res.status(200).json({
@@ -369,6 +367,7 @@ const returnBook = async (req, res) => {
       });
     }
 
+
     // Update borrow record and book availability
     const result = await prisma.$transaction([
       prisma.borrowRecord.update({
@@ -378,10 +377,7 @@ const returnBook = async (req, res) => {
           returnDate: new Date()
         }
       }),
-      prisma.book.update({
-        where: { id: bookId },
-        data: { availabilityStatus: true }
-      })
+      updateBookAvailability(bookId, true)
     ]);
 
     res.status(200).json({
